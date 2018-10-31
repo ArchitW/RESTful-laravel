@@ -1,6 +1,7 @@
 <?php
 /*
  * Pivot Table : php artisan make:migration category_product_table --create=category_product
+ * name models in alphabetical order separated by _
 
  */
 use Illuminate\Support\Facades\Schema;
@@ -17,8 +18,8 @@ class CategoryProductTable extends Migration
     public function up()
     {
         Schema::create('category_product', function (Blueprint $table) {
-            $table->integer('category_id');
-            $table->integer('product_id');
+            $table->integer('category_id')->unsigned();
+            $table->integer('product_id')->unsigned();
 
            $table->foreign('category_id')->references('id')->on('categories');
            $table->foreign('product_id')->references('id')->on('products');
