@@ -6,7 +6,8 @@ namespace App;
 
 class Buyer extends User
 {
-   public function transactions(){
+   public function transctions(){
        return $this->hasMany(Transaction::Class);
    }
+
 }

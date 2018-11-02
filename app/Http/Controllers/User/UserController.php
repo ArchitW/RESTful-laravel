@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\User;
 
 class UserController extends Controller
 {
@@ -14,18 +15,13 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+       $user = User::all();
+
+       return response()->json(['data' => $user], 200);
+       // 200 everything is Okay
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -35,7 +31,32 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $rules = [
+            'name' => 'required',
+            'email' => 'required|email|unique:users', // unique to users table
+            'password' => 'required|min:6|confirmed',
+        ];
+       // Validate request against rules
+        $this->validate($request, $rules);
+        // if validation fails , show errors
+
+        //everything is okay
+        $data =  $request->all();
+
+        $data['password'] = bcrypt($request->password);
+        $data['verified'] = User::UNVERIFIED_USER;
+        $data['verified_token'] = User::genegateVerificationCode();
+        $data['admin'] = User::REGULAR_USER; // set all users to normal user initially
+
+        //Create User
+        $user = User::create($data);
+
+        //return response
+        return response()->json(['data' => $user], 201);
+        // 201 : created
+
+
     }
 
     /**
@@ -46,18 +67,9 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        $user = User::findOrFail($id);
+        // throw error : user not found
+        return response()->json(['data' => $user], 200);
     }
 
     /**
@@ -69,7 +81,50 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $user = User::findOrFail($id);
+
+        $rules = [
+          'email' => 'email|unique:users,email,'. $user->id,
+          'password' => 'min:6|confirmed',
+          'admin' => 'in:'.User::ADMIN_USER . ',' . User::REGULAR_USER,
+
+        ];
+
+        if ($request->has('name')){
+            $user->name = $request->name;
+        }
+
+        // if request has email , check if email if different from stored email , yes: generate verification code
+        if ($request->has('email') && $user->email != $request->email){
+            $user->verified = User::UNVERIFIED_USER;
+            $user->verified_token = User::genegateVerificationCode();
+            $user->email = $request->email;
+        }
+
+        if($request->has('password')){
+            $user->password = bcrypt($request->password);
+        }
+
+        //only verified users can be admin
+        if($request->has('admin')){
+
+            if(!$user->isVerified()){
+                return response()->json(['error' => 'Only Verified Users can modify the admin field', 'code' => 409], 409);
+
+            }
+            $user->admin = $request->admin;
+        }
+
+        // check if something has changed in user record
+        if(!$user->isDirty()){
+            return response()->json(['error' => 'you need to specify a different value to update', 'code' => 422], 422);
+
+        }
+
+        // save user
+        $user->save();
+        return response()->json(['data' => $user], 200);
+
     }
 
     /**
@@ -80,6 +135,9 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $user = User::findOrFail($id);
+
+        $user->delete();
+        return response()->json(['data' => $user], 200);
     }
 }

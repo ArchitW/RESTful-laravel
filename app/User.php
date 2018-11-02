@@ -14,6 +14,9 @@ class User extends Authenticatable
 
     const ADMIN_USER = 'true';
     const REGULAR_USER = 'false';
+
+    protected $table = 'users'; // we dont have sellers table, sellers is extended from users
+
     /**
      * The attributes that are mass assignable.
      *
