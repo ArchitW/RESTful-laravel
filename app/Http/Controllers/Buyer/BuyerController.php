@@ -16,10 +16,10 @@ class BuyerController extends ApiController
      */
     public function index()
     {
-        DB::enableQueryLog();
+       // DB::enableQueryLog();
        $buyers =  Buyer::has('transctions')->get();
    // dd(DB::getQueryLog());
-       return response()->json(['data' => $buyers], 200);
+       return $this->showAll($buyers);
     }
 
     /**
@@ -32,7 +32,7 @@ class BuyerController extends ApiController
     {
         $buyer = Buyer::has('transctions')->findOrFail($id);
 
-        return response()->json(['data' => $buyer], 200);
+        return $this->showOne($buyer);
     }
 
 

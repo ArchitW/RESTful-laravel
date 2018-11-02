@@ -15,9 +15,9 @@ class UserController extends ApiController
      */
     public function index()
     {
-       $user = User::all();
+       $users = User::all();
 
-       return response()->json(['data' => $user], 200);
+        return $this->showAll($users);
        // 200 everything is Okay
     }
 
@@ -53,7 +53,7 @@ class UserController extends ApiController
         $user = User::create($data);
 
         //return response
-        return response()->json(['data' => $user], 201);
+        return $this->showOne($user, 201);
         // 201 : created
 
 
@@ -69,7 +69,7 @@ class UserController extends ApiController
     {
         $user = User::findOrFail($id);
         // throw error : user not found
-        return response()->json(['data' => $user], 200);
+        return $this->showOne($user);
     }
 
     /**
@@ -109,7 +109,7 @@ class UserController extends ApiController
         if($request->has('admin')){
 
             if(!$user->isVerified()){
-                return response()->json(['error' => 'Only Verified Users can modify the admin field', 'code' => 409], 409);
+                return $this->errorResponse( 'Only Verified Users can modify the admin field',  409);
 
             }
             $user->admin = $request->admin;
@@ -117,13 +117,13 @@ class UserController extends ApiController
 
         // check if something has changed in user record
         if(!$user->isDirty()){
-            return response()->json(['error' => 'you need to specify a different value to update', 'code' => 422], 422);
+            return $this->errorResponse('you need to specify a different value to update', 422);
 
         }
 
         // save user
         $user->save();
-        return response()->json(['data' => $user], 200);
+        return $this->showOne($user);
 
     }
 
