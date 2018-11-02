@@ -34,6 +34,24 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token', 'verification_token'
     ];
+/**  Mutator and Accessors
+Mutator : Values can me modified before saving to db.
+ *         signature set____Attribute($value) { return $this->attributes['name] = value ; }
+Accessors : Values can be modified before sending data
+ *         signature get____Attribute($value) { return doSomeStuff(value) ; }
+ **/
+
+    public function setNameAttribute($name){
+        $this->attributes['name'] = strtolower($name);
+    }
+
+    public function getNameAttribute($name){
+        return ucwords($name);
+    }
+
+    public function setEmailAttribute($email){
+        return $this->attributes['email'] = strtolower($email);
+    }
 
     public function isAdmin(){
         return $this->admin == User::ADMIN_USER;
