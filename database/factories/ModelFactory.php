@@ -29,7 +29,7 @@ $factory->define(User::class, function (Faker\Generator $faker) {
         'remember_token' => str_random(10),
         'verified' => $verified = $faker->randomElement([User::VERIFIED_USER, User::UNVERIFIED_USER]),
         // if user is not verified generate verification token else null
-        'verification_token' => $verified == User::VERIFIED_USER ? null : User::genegateVerificationCode(),
+        'verified_token' => $verified == User::VERIFIED_USER ? null : User::genegateVerificationCode(),
         'admin' => $faker->randomElement([User::ADMIN_USER, User::REGULAR_USER]),
 
     ];
@@ -50,10 +50,10 @@ $factory->define(Product::class, function (Faker\Generator $faker) {
     return [
         'name' => $faker->word,
         'description' => $faker->paragraph(1),
-        'quantity' => $faker->randomNumber(1,10),
+        'quantity' => $faker->numberBetween(1,10),
         'status' => $faker->randomElement([Product::AVAILABLE_PRODUCT, Product::UNAVAILABLE_PRODUCT]),
         'image' => $faker->randomElement(['1.jpg','2.jpg','3.jpg']), // images saved at public\img\
-        'seller_id' => User::all()->random(1)->id, //get all user -> get random 1 -> get his id
+        'seller_id' => User::all()->random()->id, //get all user -> get random 1 -> get his id
        // Or User::inRandomOrder()->first()->id
     ];
 });
